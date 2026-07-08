@@ -28,7 +28,9 @@ export async function POST(req: NextRequest) {
   }
 
   const raw = (body ?? {}) as Record<string, unknown>;
+  const prompt = String(raw.prompt ?? "").trim();
   const input: LandingPageFormInput = {
+    prompt,
     brandName: String(raw.brandName ?? ""),
     whatItDoes: String(raw.whatItDoes ?? ""),
     targetAudience: String(raw.targetAudience ?? ""),
@@ -41,12 +43,14 @@ export async function POST(req: NextRequest) {
     contactInfo: String(raw.contactInfo ?? ""),
   };
 
-  const errors = validateLandingPageForm(input);
-  if (Object.keys(errors).length > 0) {
-    return NextResponse.json(
-      { error: "Please fill in all required fields." },
-      { status: 400 }
-    );
+  if (!prompt) {
+    const errors = validateLandingPageForm(input);
+    if (Object.keys(errors).length > 0) {
+      return NextResponse.json(
+        { error: "Please describe what you want to build." },
+        { status: 400 }
+      );
+    }
   }
 
   const controller = new AbortController();

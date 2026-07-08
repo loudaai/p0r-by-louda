@@ -11,6 +11,7 @@ export const PRESETS: Preset[] = [
     id: "coffee-shop",
     label: "Local coffee shop",
     input: {
+      prompt: "",
       brandName: "North End Coffee",
       whatItDoes:
         "A neighborhood coffee shop serving small-batch roasts, simple pastries, and a calm place to work.",
@@ -29,6 +30,7 @@ export const PRESETS: Preset[] = [
     id: "web-design",
     label: "Freelance web design",
     input: {
+      prompt: "",
       brandName: "Quiet Desk Studio",
       whatItDoes:
         "Freelance web design for small businesses that need a clear, fast website without agency overhead.",
@@ -47,6 +49,7 @@ export const PRESETS: Preset[] = [
     id: "study-app",
     label: "Student study app",
     input: {
+      prompt: "",
       brandName: "Stack Up",
       whatItDoes:
         "A study app that turns your notes into practice quizzes using spaced repetition.",
@@ -65,6 +68,7 @@ export const PRESETS: Preset[] = [
     id: "fitness-tracker",
     label: "Beginner fitness tracker",
     input: {
+      prompt: "",
       brandName: "First Mile",
       whatItDoes:
         "A beginner-friendly fitness tracker that builds short, doable weekly plans.",

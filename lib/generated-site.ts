@@ -1,4 +1,4 @@
-import type { LandingPageDesignInput } from "./types";
+import type { LandingPageContent, LandingPageDesignInput } from "./types";
 
 type Vars = Record<string, string>;
 
@@ -32,6 +32,46 @@ const LIGHT_CURATED = {
   accent: "#52525b",
 };
 
+export type VisualStyle =
+  | "auto"
+  | "local-business"
+  | "saas"
+  | "fitness"
+  | "education"
+  | "portfolio"
+  | "service"
+  | "default";
+
+export function inferVisualStyle(content: LandingPageContent): VisualStyle {
+  const text = [
+    content.brandName,
+    content.tagline,
+    content.heroHeadline,
+    content.heroSubheadline,
+    content.problemDescription,
+    content.solutionDescription,
+    ...content.benefits,
+    ...content.features.map((f) => `${f.title} ${f.description}`),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (/auto|vehicle|car|repair|mechanic|automotive|garage|tire|motor|fleet|engine|brake/.test(text))
+    return "auto";
+  if (/gym|workout|fitness|exercise|training|muscle|run|wellness|habit|routine|streak/.test(text))
+    return "fitness";
+  if (/study|student|learn|course|school|class|note|exam|education|tutoring|academic|quiz/.test(text))
+    return "education";
+  if (/app|software|saas|ai tool|platform|dashboard|api|tech|startup|productivity|tool/.test(text))
+    return "saas";
+  if (/coffee|restaurant|shop|store|bakery|local|menu|order|location/.test(text))
+    return "local-business";
+  if (/portfolio|designer|photographer|artist|writer|creative/.test(text))
+    return "portfolio";
+  if (/agency|freelance|studio|service|consult/.test(text)) return "service";
+  return "default";
+}
+
 export function resolvePalette(design: LandingPageDesignInput) {
   const dark = design.siteTheme === "dark";
   const curated = dark ? DARK_CURATED : LIGHT_CURATED;
@@ -39,16 +79,7 @@ export function resolvePalette(design: LandingPageDesignInput) {
   const customized = Boolean(design.colorsCustomized);
   const logoDriven = design.useLogoPalette && Boolean(design.logoDataUrl);
 
-  if (customized) {
-    return {
-      ...curated,
-      primary: design.primaryColor,
-      primaryFg: readableText(design.primaryColor),
-      secondary: design.secondaryColor,
-      accent: design.accentColor,
-    };
-  }
-  if (logoDriven) {
+  if (customized || logoDriven) {
     return {
       ...curated,
       primary: design.primaryColor,
@@ -92,9 +123,7 @@ export function themeVars(design: LandingPageDesignInput): Vars {
 /* Shared deterministic graphics                                              */
 /* -------------------------------------------------------------------------- */
 
-type IconSet = string[][];
-
-export const FEATURE_ICONS: IconSet = [
+export const FEATURE_ICONS: string[][] = [
   ["M13 2 L4 14 L11 14 L10 22 L20 9 L13 9 Z"],
   ["M12 3 L19 6 V11 C19 16 16 19 12 21 C8 19 5 16 5 11 V6 Z"],
   ["M4 20 V11", "M10 20 V4", "M16 20 V13"],
@@ -130,31 +159,114 @@ export const FEATURE_ICONS: IconSet = [
 export function featureGlyphSvg(index: number, color: string): string {
   const paths = FEATURE_ICONS[index % FEATURE_ICONS.length];
   const inner = paths
-    .map((d) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />`)
+    .map(
+      (d) =>
+        `<path d="${d}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />`
+    )
     .join("");
   return `<svg class="glyph" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${inner}</svg>`;
 }
 
-export function heroArtHtml(design: LandingPageDesignInput): string {
-  return `<div class="hero-art" aria-hidden="true">
-  <div class="art-glow"></div>
-  <div class="art-grid"></div>
-  <div class="art-card art-card--a">
-    <span class="art-dot"></span>
-    <div class="art-line"></div>
-    <div class="art-line short"></div>
-  </div>
-  <div class="art-card art-card--b">
-    <div class="art-bar"></div>
-    <div class="art-line"></div>
-    <div class="art-line short"></div>
-  </div>
-  <div class="art-orb"></div>
-  <div class="art-ring"></div>
-</div>`;
+function wrenchSvg(color: string): string {
+  return `<svg class="art-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 7 L17 4 C19 2 22 5 20 7 L13 14 L9 10 Z M4 20 L10 14" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>`;
 }
 
-export function showcaseGraphicHtml(design: LandingPageDesignInput): string {
+export function heroArtHtml(
+  style: VisualStyle,
+  design: LandingPageDesignInput
+): string {
+  const accent = design.accentColor;
+  const base = `<div class="art-glow"></div><div class="art-grid"></div>`;
+
+  if (style === "auto") {
+    return `<div class="hero-art art-auto" aria-hidden="true">${base}
+      <div class="art-card art-main">
+        <div class="art-head"><span class="art-chip">Vehicle inspection</span><span class="art-status">In progress</span></div>
+        <div class="art-checklist">
+          <span class="art-row"><span class="art-box on"></span><span class="art-line"></span></span>
+          <span class="art-row"><span class="art-box on"></span><span class="art-line short"></span></span>
+          <span class="art-row"><span class="art-box"></span><span class="art-line tiny"></span></span>
+        </div>
+        <div class="art-foot">${wrenchSvg(accent)}<span class="art-line short"></span></div>
+      </div>
+      <div class="art-card art-float">
+        <span class="art-dot"></span><span class="art-line"></span><span class="art-bar"></span>
+      </div>
+    </div>`;
+  }
+
+  if (style === "saas") {
+    return `<div class="hero-art art-saas" aria-hidden="true">${base}
+      <div class="art-card art-main">
+        <div class="art-head"><span class="art-chip">Dashboard</span><span class="art-status">Live</span></div>
+        <div class="art-stats">
+          <span class="art-stat"><b></b><i></i></span>
+          <span class="art-stat"><b></b><i></i></span>
+          <span class="art-stat"><b></b><i></i></span>
+        </div>
+        <svg class="art-spark" viewBox="0 0 200 48" preserveAspectRatio="none"><polyline points="0,40 32,30 64,34 96,18 128,24 160,10 200,16" fill="none" stroke="${accent}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </div>
+      <div class="art-card art-float">
+        <span class="art-node"></span><span class="art-line short"></span><span class="art-node"></span>
+      </div>
+    </div>`;
+  }
+
+  if (style === "fitness") {
+    return `<div class="hero-art art-fitness" aria-hidden="true">${base}
+      <div class="art-card art-main">
+        <div class="art-head"><span class="art-chip">Today's plan</span><span class="art-status">Day 12</span></div>
+        <div class="art-gauge"></div>
+        <div class="art-checklist">
+          <span class="art-row"><span class="art-box on"></span><span class="art-line"></span></span>
+          <span class="art-row"><span class="art-box"></span><span class="art-line short"></span></span>
+        </div>
+      </div>
+      <div class="art-card art-float">
+        <span class="art-dot"></span><span class="art-bar"></span>
+      </div>
+    </div>`;
+  }
+
+  if (style === "education") {
+    return `<div class="hero-art art-edu" aria-hidden="true">${base}
+      <div class="art-card art-main">
+        <div class="art-head"><span class="art-chip">Study set</span><span class="art-status">82%</span></div>
+        <div class="art-notes">
+          <span class="art-line"></span><span class="art-line"></span><span class="art-line short"></span><span class="art-line tiny"></span>
+        </div>
+        <div class="art-checklist">
+          <span class="art-row"><span class="art-box on"></span><span class="art-line short"></span></span>
+          <span class="art-row"><span class="art-box"></span><span class="art-line tiny"></span></span>
+        </div>
+      </div>
+      <div class="art-card art-float">
+        <span class="art-dot"></span><span class="art-line short"></span>
+      </div>
+    </div>`;
+  }
+
+  // default / floating UI cards
+  return `<div class="hero-art" aria-hidden="true">${base}
+    <div class="art-card art-card--a">
+      <span class="art-dot"></span>
+      <div class="art-line"></div>
+      <div class="art-line short"></div>
+    </div>
+    <div class="art-card art-card--b">
+      <div class="art-bar"></div>
+      <div class="art-line"></div>
+      <div class="art-line short"></div>
+    </div>
+    <div class="art-orb"></div>
+    <div class="art-ring"></div>
+  </div>`;
+}
+
+export function showcaseGraphicHtml(
+  style: VisualStyle,
+  design: LandingPageDesignInput
+): string {
   return `<div class="browser" aria-hidden="true">
   <div class="browser-bar"><span></span><span></span><span></span></div>
   <div class="browser-body">
@@ -191,9 +303,11 @@ export function readableText(hex: string): string {
 /* -------------------------------------------------------------------------- */
 
 export const GENERATED_SITE_CSS = `
-.lp { background: var(--bg); color: var(--fg); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; min-height: 100vh; position: relative; overflow: hidden; }
-.lp * { box-sizing: border-box; }
-.lp body { margin: 0; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: var(--bg); }
+body { overflow-x: hidden; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+.lp { background: var(--bg); color: var(--fg); line-height: 1.6; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; min-height: 100vh; width: 100%; position: relative; overflow: hidden; }
 .lp .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .lp .section { padding: clamp(56px, 8vw, 104px) 0; position: relative; }
 .lp .section + .section { border-top: 1px solid var(--border); }
@@ -212,7 +326,7 @@ export const GENERATED_SITE_CSS = `
 .lp .btn-ghost { background: var(--surface-2); color: var(--fg); border-color: var(--border); }
 
 /* Header */
-.lp header.site { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+.lp header.site { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; background: color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
 .lp .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.02em; font-size: 17px; }
 .lp .logo { height: 34px; width: auto; border-radius: 9px; display: block; }
 .lp .nav { display: none; gap: 22px; color: var(--muted); font-size: 14px; }
@@ -244,9 +358,33 @@ export const GENERATED_SITE_CSS = `
 .lp .art-dot { width: 26px; height: 26px; border-radius: 8px; background: var(--primary); box-shadow: 0 8px 18px -6px var(--tint-strong); }
 .lp .art-line { height: 9px; border-radius: 999px; background: var(--border-strong); }
 .lp .art-line.short { width: 62%; }
+.lp .art-line.tiny { width: 40%; }
 .lp .art-bar { height: 30px; border-radius: 9px; background: linear-gradient(120deg, var(--primary), var(--accent)); opacity: 0.85; }
 .lp .art-orb { position: absolute; right: 14%; top: 18%; width: 26%; aspect-ratio: 1; border-radius: 999px; background: radial-gradient(circle at 30% 30%, var(--primary), var(--accent)); filter: blur(2px); opacity: 0.9; }
 .lp .art-ring { position: absolute; left: 30%; bottom: 22%; width: 34%; aspect-ratio: 1; border-radius: 999px; border: 2px solid var(--border-strong); }
+
+/* Hero art shared primitives */
+.lp .art-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.lp .art-chip { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: var(--accent); background: var(--accent-tint); border: 1px solid var(--border); padding: 4px 9px; border-radius: 999px; }
+.lp .art-status { font-size: 11px; color: var(--muted); }
+.lp .art-foot { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.lp .art-icon { width: 22px; height: 22px; color: var(--accent); flex: none; }
+.lp .art-checklist { display: flex; flex-direction: column; gap: 9px; }
+.lp .art-row { display: flex; align-items: center; gap: 10px; }
+.lp .art-box { width: 15px; height: 15px; border-radius: 5px; border: 1.5px solid var(--border-strong); flex: none; }
+.lp .art-box.on { background: var(--primary); border-color: var(--primary); }
+.lp .art-stat { display: flex; flex-direction: column; gap: 7px; flex: 1; padding: 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+.lp .art-stat b { height: 18px; border-radius: 6px; background: var(--primary); opacity: 0.85; }
+.lp .art-stat i { height: 8px; border-radius: 999px; background: var(--border-strong); }
+.lp .art-stats { display: flex; gap: 10px; }
+.lp .art-spark { width: 100%; height: 46px; margin-top: 4px; }
+.lp .art-gauge { width: 84px; height: 84px; border-radius: 999px; background: conic-gradient(var(--primary) 0 68%, var(--secondary) 68% 100%); -webkit-mask: radial-gradient(circle 26px at center, transparent 98%, #000 100%); mask: radial-gradient(circle 26px at center, transparent 98%, #000 100%); position: relative; }
+.lp .art-notes { display: flex; flex-direction: column; gap: 9px; }
+.lp .art-node { width: 14px; height: 14px; border-radius: 999px; background: var(--accent); flex: none; box-shadow: 0 0 0 4px var(--accent-tint); }
+
+/* Default hero art card placement */
+.lp .art-main { left: 12%; top: 14%; right: 12%; width: auto; }
+.lp .art-float { right: 8%; bottom: 12%; width: 40%; }
 
 /* Section heads */
 .lp .section-head { max-width: 720px; margin-bottom: clamp(28px, 4vw, 48px); }
@@ -257,6 +395,7 @@ export const GENERATED_SITE_CSS = `
 .lp .split { display: grid; grid-template-columns: 1fr; gap: 20px; }
 .lp .panel { position: relative; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); padding: clamp(26px, 3vw, 38px); overflow: hidden; }
 .lp .panel::before { content: ""; position: absolute; inset: 0; background: radial-gradient(80% 60% at 100% 0%, var(--tint), transparent 60%); opacity: 0.5; }
+.lp .panel.alt { background: linear-gradient(160deg, var(--surface), var(--surface-2)); border-color: var(--border-strong); }
 .lp .panel .tag { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
 .lp .panel h3 { font-size: clamp(20px, 2.4vw, 28px); margin: 12px 0 14px; }
 .lp .panel p { font-size: 16px; }

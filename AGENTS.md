@@ -356,3 +356,69 @@ The generated/exported landing page was redesigned to look premium, not like a b
 * Preview and exported `index.html` match and look significantly better.
 * Light and dark themes both look premium.
 * `npm run build` passes; no secrets committed.
+
+## v0-style UX and prompt-first workspace
+
+The app UX moved to a v0/Lovable-style flow.
+
+### App state
+
+* `AppMode = "start" | "workspace"`.
+* Start: centered prompt-first screen. No long form by default.
+* Workspace: left chat/history panel (~320px), top toolbar, full preview canvas.
+
+### Start screen
+
+* Full dark background, centered prompt area.
+* Headline: `What do you want to create?`
+* Large prompt textarea: placeholder `Describe the landing page you want to build...`.
+* Generate button enabled when a prompt exists (structured fields optional).
+* "Design options" toggles a collapsible panel with advanced structured fields, logo upload, theme, optional colors, optional photo URLs, and example presets.
+* App infers missing structured fields from the prompt on the server.
+
+### Prompt-first generation
+
+* `LandingPageFormInput.prompt` is the primary input.
+* API receives `{ prompt, ...structuredFields }`. If a prompt exists, required-field validation is skipped.
+* `buildUserPrompt` leads with the natural-language prompt and lists provided structured details; the AI infers the rest and still returns the structured JSON shape only.
+
+### Workspace
+
+* Left panel: original prompt, generation history, follow-up input (Cmd/Ctrl+Enter to send; sends a regeneration request).
+* Top toolbar: project name, view modes (desktop/tablet/mobile), Copy HTML, Download index.html, Regenerate.
+* Preview canvas: full available area; preview is an `<iframe srcDoc={generatedHtml}>` so the preview exactly equals the export.
+
+### Single source of truth
+
+* `const generatedHtml = generateStandaloneHtml(content, design)` is the only generated HTML.
+* The iframe preview, Copy HTML, and Download index.html all use this exact string. No separate React preview.
+
+### Exported HTML global reset (white-border fix)
+
+* `lib/generated-site.ts` emits a real reset: `*, *::before, *::after { box-sizing: border-box; }`, `html, body { margin: 0; min-height: 100%; background: var(--bg); }`, `body { overflow-x: hidden; }`.
+* The CSS variables are applied to the `<html>` element (`<html lang="en" style="...">`), and `.lp` uses `width: 100%; min-height: 100vh; background: var(--bg); color: var(--fg);`. No `.lp body` selector.
+* This removes the white border / browser margin around exported pages.
+
+### Industry-aware graphics
+
+* `inferVisualStyle(content)` returns `auto | saas | fitness | education | local-business | portfolio | service | default` from content keywords.
+* `heroArtHtml(style, design)` and `showcaseGraphicHtml(style, design)` render deterministic, CSS/SVG-only visuals tailored per industry (e.g. auto repair shows an inspection/booking card, saas shows a dashboard + sparkline, fitness shows a progress gauge, education shows study notes).
+* No AI images, no external image APIs.
+
+### Files
+
+* `app/page.tsx`: start/workspace state machine + single source of truth.
+* `components/start-screen.tsx`, `components/workspace.tsx`, `components/advanced-options.tsx`, `components/export-actions.tsx`.
+* `lib/generated-site.ts`: reset/CSS, `inferVisualStyle`, `heroArtHtml`, `showcaseGraphicHtml`, `themeVars`, `resolvePalette`.
+* `lib/html-export.ts`: builds the single HTML, applies style on `<html>`, uses `inferVisualStyle`.
+* `lib/prompts.ts`, `app/api/generate/route.ts`: prompt-first request handling.
+
+### Acceptance
+
+* No white border around exported pages.
+* Proper `html, body` reset.
+* Start screen prompt-first like v0.
+* Workspace has left chat panel + large preview canvas (iframe `srcDoc`).
+* Preview equals export; copy/download use the exact HTML.
+* Industry-aware graphics appear without photos.
+* Light/dark themes look premium; `npm run build` passes; no secrets committed.

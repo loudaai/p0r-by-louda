@@ -3,6 +3,7 @@ import {
   GENERATED_SITE_CSS,
   featureGlyphSvg,
   heroArtHtml,
+  inferVisualStyle,
   showcaseGraphicHtml,
   themeVars,
 } from "./generated-site";
@@ -28,6 +29,7 @@ export function generateStandaloneHtml(
 ): string {
   const esc = escapeHtml;
   const styleAttr = varsToStyle(design);
+  const visualStyle = inferVisualStyle(content);
 
   const logo = design.logoDataUrl
     ? `<a class="brand" href="#top"><img class="logo" src="${esc(design.logoDataUrl)}" alt="Logo" /></a>`
@@ -36,7 +38,7 @@ export function generateStandaloneHtml(
   const heroPhoto = design.photoUrls.find((p) => p.trim() !== "");
   const heroVisual = heroPhoto
     ? `<div class="photo-panel"><img src="${esc(heroPhoto)}" alt="" loading="lazy" /></div>`
-    : heroArtHtml(design);
+    : heroArtHtml(visualStyle, design);
 
   const trustItems = content.benefits.slice(0, 4);
   const trust = trustItems.length
@@ -91,7 +93,7 @@ export function generateStandaloneHtml(
 
   const showcaseVisual = showPhotos
     ? `<div class="photo-panel"><img src="${esc(photos[0])}" alt="" loading="lazy" /></div>`
-    : showcaseGraphicHtml(design);
+    : showcaseGraphicHtml(visualStyle, design);
 
   const finalCta = `
     <section class="section">
@@ -135,7 +137,7 @@ export function generateStandaloneHtml(
     </section>`;
 
   return `<!doctype html>
-<html lang="en">
+<html lang="en" style="${styleAttr}">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -144,7 +146,7 @@ export function generateStandaloneHtml(
 <style>${GENERATED_SITE_CSS}</style>
 </head>
 <body>
-<div class="lp" id="top" style="${styleAttr}">
+<div class="lp" id="top">
   <header class="site">
     ${logo}
     <nav class="nav">

@@ -3,24 +3,20 @@
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
-import { generateStandaloneHtml } from "@/lib/html-export";
-import type { LandingPageContent, LandingPageDesignInput } from "@/lib/types";
 
 export function ExportActions({
-  content,
-  design,
+  html,
+  disabled,
 }: {
-  content: LandingPageContent;
-  design: LandingPageDesignInput;
+  html: string;
+  disabled?: boolean;
 }) {
-  const hasContent = Boolean(content && (content.brandName || content.heroHeadline));
   const [copied, setCopied] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   async function handleCopy() {
     setError(null);
     try {
-      const html = generateStandaloneHtml(content, design);
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(html);
       } else {
@@ -44,7 +40,6 @@ export function ExportActions({
   function handleDownload() {
     setError(null);
     try {
-      const html = generateStandaloneHtml(content, design);
       const blob = new Blob([html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
@@ -61,12 +56,12 @@ export function ExportActions({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2">
         <Button
           variant="outline"
           size="sm"
           onClick={handleCopy}
-          disabled={!hasContent}
+          disabled={disabled}
         >
           {copied ? "Copied!" : "Copy HTML"}
         </Button>
@@ -74,15 +69,13 @@ export function ExportActions({
           variant="outline"
           size="sm"
           onClick={handleDownload}
-          disabled={!hasContent}
+          disabled={disabled}
         >
           Download index.html
         </Button>
       </div>
       {copied ? (
-        <span className="text-xs text-muted-foreground">
-          HTML copied to clipboard.
-        </span>
+        <span className="text-xs text-muted-foreground">HTML copied to clipboard.</span>
       ) : null}
       {error ? <span className="text-xs text-destructive">{error}</span> : null}
     </div>

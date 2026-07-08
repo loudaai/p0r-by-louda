@@ -10,6 +10,7 @@ export const TONES = [
 export type Tone = (typeof TONES)[number];
 
 export type LandingPageFormInput = {
+  prompt: string;
   brandName: string;
   whatItDoes: string;
   targetAudience: string;
@@ -20,6 +21,16 @@ export type LandingPageFormInput = {
   offerOrPricing: string;
   contactInfo: string;
 };
+
+export type VisualStyle =
+  | "auto"
+  | "local-business"
+  | "saas"
+  | "fitness"
+  | "education"
+  | "portfolio"
+  | "service"
+  | "default";
 
 export type LandingPageContent = {
   brandName: string;
@@ -73,6 +84,7 @@ export const DEFAULT_DESIGN: LandingPageDesignInput = {
 };
 
 export const EMPTY_FORM_INPUT: LandingPageFormInput = {
+  prompt: "",
   brandName: "",
   whatItDoes: "",
   targetAudience: "",
