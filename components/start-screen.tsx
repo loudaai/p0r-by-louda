@@ -138,7 +138,7 @@ export function StartScreen({
 
       <main className="grid min-h-[100dvh] place-items-center px-5 py-8">
         <div className="flex w-full max-w-[760px] flex-col items-center translate-y-[-3vh] sm:translate-y-[-5vh]">
-          <h1 className="text-center text-[clamp(28px,3vw,36px)] font-semibold leading-[1.1] tracking-[-0.04em] text-white">
+          <h1             className="text-center text-[clamp(24px,2.6vw,30px)] font-semibold leading-[1.1] tracking-[-0.04em] text-white">
             What do you want to create?
           </h1>
 
