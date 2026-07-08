@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { GeneratorForm } from "@/components/generator-form";
+import { LandingPreview } from "@/components/landing-preview";
+import { SAMPLE_LANDING_PAGE } from "@/lib/sample-content";
 
 export default function Home() {
   return (
@@ -38,25 +38,12 @@ export default function Home() {
           <div className="flex flex-col gap-1">
             <h2 className="text-xl font-semibold tracking-tight">Preview</h2>
             <p className="text-sm text-muted-foreground">
-              Your generated landing page will appear here.
+              Sample preview rendered from structured content.
             </p>
           </div>
-          <Card className="min-h-[420px]">
-            <CardHeader>
-              <CardTitle>Generated preview</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <Skeleton className="h-7 w-2/3" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-5/6" />
-              <Separator />
-              <div className="grid grid-cols-2 gap-3">
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-              </div>
-              <Skeleton className="h-9 w-40" />
+          <Card className="p-0">
+            <CardContent className="p-3">
+              <LandingPreview content={SAMPLE_LANDING_PAGE} />
             </CardContent>
           </Card>
         </section>
