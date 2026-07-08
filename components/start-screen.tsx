@@ -59,7 +59,7 @@ export function StartScreen({
       <button
         type="button"
         onClick={() => logoInputRef.current?.click()}
-        className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-zinc-300 hover:bg-white/5 hover:text-white"
+        className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-sm text-zinc-300 hover:bg-white/5 hover:text-white"
       >
         Upload logo
       </button>
@@ -68,7 +68,7 @@ export function StartScreen({
         onClick={() =>
           onDesignChange({ ...design, useGeneratedImages: !design.useGeneratedImages })
         }
-        className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left text-sm text-zinc-300 hover:bg-white/5 hover:text-white"
+        className="flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-sm text-zinc-300 hover:bg-white/5 hover:text-white"
       >
         <span>Generate images</span>
         <span

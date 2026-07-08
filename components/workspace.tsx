@@ -247,12 +247,13 @@ export function Workspace({
               onClick={onRegenerate}
               disabled={busy}
               title="Regenerate"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-zinc-300 hover:bg-white/5 hover:text-white disabled:opacity-40"
+              className="flex h-8 flex-none items-center gap-1.5 rounded-md border border-white/10 px-3 text-xs text-zinc-200 hover:bg-white/5 hover:text-white disabled:opacity-40"
             >
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 12a9 9 0 1 1-2.64-6.36" />
                 <path d="M21 3v6h-6" />
               </svg>
+              Regenerate
             </button>
           </div>
         </div>

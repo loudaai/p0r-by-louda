@@ -95,7 +95,7 @@ export function ChatComposer({
             type="button"
             onClick={() => plusContent && setMenuOpen((v) => !v)}
             disabled={disabled || !plusContent}
-            className="flex h-9 w-9 flex-none items-center justify-center rounded-lg text-zinc-400 hover:bg-white/5 hover:text-white disabled:opacity-40"
+            className="flex h-8 w-8 flex-none items-center justify-center rounded-md text-zinc-400 hover:bg-white/5 hover:text-white disabled:opacity-40"
             aria-label="Add options"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -107,7 +107,7 @@ export function ChatComposer({
             type="button"
             onClick={onSubmit}
             disabled={disabled || value.trim().length === 0}
-            className="flex h-9 flex-none items-center justify-center rounded-lg bg-white px-4 text-sm font-medium text-black disabled:opacity-40"
+            className="flex h-8 flex-none items-center justify-center rounded-md bg-white px-3 text-sm font-medium text-black disabled:opacity-40"
           >
             {submitLabel}
           </button>
