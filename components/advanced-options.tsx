@@ -20,7 +20,6 @@ import {
   type LandingPageFormInput,
 } from "@/lib/types";
 import { PRESETS } from "@/lib/presets";
-import { fileToDataUrl, extractPalette } from "@/lib/logo";
 import type { FormErrors } from "@/lib/validation";
 
 function Field({
@@ -98,8 +97,6 @@ export function AdvancedOptions({
   errors: FormErrors;
   loading?: boolean;
 }) {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-
   function update<K extends keyof LandingPageFormInput>(
     key: K,
     value: LandingPageFormInput[K]
@@ -109,52 +106,6 @@ export function AdvancedOptions({
 
   function patchDesign(patch: Partial<LandingPageDesignInput>) {
     onDesignChange({ ...design, ...patch });
-  }
-
-  async function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const dataUrl = await fileToDataUrl(file);
-      const next: LandingPageDesignInput = {
-        ...design,
-        logoDataUrl: dataUrl,
-        useLogoPalette: false,
-        colorsCustomized: false,
-      };
-      try {
-        const palette = await extractPalette(dataUrl, 3);
-        next.primaryColor = palette[0] ?? next.primaryColor;
-        next.secondaryColor = palette[1] ?? next.secondaryColor;
-        next.accentColor = palette[2] ?? next.accentColor;
-        next.useLogoPalette = true;
-      } catch {
-        /* fall back to curated palette */
-      }
-      onDesignChange(next);
-    } catch {
-      /* ignore */
-    }
-  }
-
-  async function toggleLogoPalette() {
-    const next = !design.useLogoPalette;
-    if (next && design.logoDataUrl) {
-      try {
-        const palette = await extractPalette(design.logoDataUrl, 3);
-        patchDesign({
-          useLogoPalette: true,
-          colorsCustomized: false,
-          primaryColor: palette[0] ?? design.primaryColor,
-          secondaryColor: palette[1] ?? design.secondaryColor,
-          accentColor: palette[2] ?? design.accentColor,
-        });
-        return;
-      } catch {
-        /* fall through */
-      }
-    }
-    patchDesign({ useLogoPalette: next, colorsCustomized: false });
   }
 
   function setPhotoUrl(index: number, value: string) {
@@ -277,61 +228,10 @@ export function AdvancedOptions({
         </Field>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
-        <span className="text-xs font-medium text-muted-foreground">Design options</span>
+        <div className="flex flex-col gap-3 rounded-lg border border-border p-4">
+          <span className="text-xs font-medium text-muted-foreground">Design options</span>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-foreground">Logo</span>
-          <div className="flex flex-wrap items-center gap-3">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleLogoChange}
-              disabled={loading}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={loading}
-            >
-              Upload logo
-            </Button>
-            {design.logoDataUrl ? (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={design.logoDataUrl}
-                  alt="Uploaded logo preview"
-                  className="h-9 w-9 rounded-md border border-border object-contain"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => patchDesign({ logoDataUrl: undefined })}
-                  disabled={loading}
-                >
-                  Remove
-                </Button>
-                <Button
-                  type="button"
-                  variant={design.useLogoPalette ? "default" : "outline"}
-                  size="sm"
-                  onClick={toggleLogoPalette}
-                  disabled={loading}
-                >
-                  Use logo colors
-                </Button>
-              </>
-            ) : null}
-          </div>
-        </div>
-
-        <ColorField
+          <ColorField
           label="Primary"
           value={design.primaryColor}
           onChange={(v) =>

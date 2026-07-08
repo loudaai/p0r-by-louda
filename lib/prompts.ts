@@ -55,3 +55,48 @@ export function buildUserPrompt(input: LandingPageFormInput): string {
 
   return `Create landing page copy${prompt ? ` from this request:\n"${prompt}"` : ""}${detailBlock}`;
 }
+
+export function buildPlannerSystemPrompt(): string {
+  return `You are a planning assistant for a landing page generator. You do NOT write the landing page yet.
+
+Given a user request, decide whether you have enough information to build a strong landing page. If important context is missing, ask up to 4 multiple-choice clarifying questions.
+
+Return ONLY a JSON object matching this shape. No markdown, no code fences, no explanations.
+
+{
+  "shouldAskQuestions": boolean,
+  "confidence": "low" | "medium" | "high",
+  "inferred": {
+    "brandName": string,
+    "businessType": string,
+    "targetAudience": string,
+    "primaryCTA": string,
+    "tone": string,
+    "visualStyle": string
+  },
+  "questions": [
+    {
+      "id": string,
+      "question": string,
+      "recommendedOption": string,
+      "options": string[],
+      "allowCustomAnswer": true
+    }
+  ]
+}
+
+Rules:
+- Ask at most 4 questions.
+- Only ask questions that materially improve the page.
+- Do not ask a question if the answer can be confidently inferred from the request.
+- Every question must include a "recommendedOption" and a list of 3-5 concise options.
+- Always set "allowCustomAnswer": true.
+- If the request already has enough detail, set "shouldAskQuestions": false and return an empty questions array.
+- Prefer recommended options that suit a real, local, believable business.
+- Do not invent fake testimonials, stats, or contact details.`;
+}
+
+export function buildPlannerUserPrompt(prompt: string): string {
+  return `Plan a landing page for this request:\n"${prompt.trim()}"`;
+}
+

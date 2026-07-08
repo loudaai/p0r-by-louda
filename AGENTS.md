@@ -422,3 +422,50 @@ The app UX moved to a v0/Lovable-style flow.
 * Preview equals export; copy/download use the exact HTML.
 * Industry-aware graphics appear without photos.
 * Light/dark themes look premium; `npm run build` passes; no secrets committed.
+
+## Agentic v0-style workspace flow
+
+The app now transitions to the workspace immediately and behaves like an agent.
+
+### State model
+
+* `AppMode = "start" | "workspace"`.
+* `GenerationStatus = "idle" | "thinking" | "asking" | "generating" | "ready" | "error"`.
+* `ChatMessage = { id, role: user|assistant|system, content, status? }`.
+* `ClarifyingQuestion = { id, question, recommendedOption?, options[], allowCustomAnswer }`.
+
+### Immediate transition
+
+On Generate, the app sets `mode = "workspace"` right away, adds the user prompt to chat, sets status `thinking`, and shows the empty preview canvas with a loading state. Generation/planning happens after the workspace is visible.
+
+### Planning + clarifying questions
+
+* `POST /api/plan` receives the prompt (and optional design) and returns `{ shouldAskQuestions, confidence, inferred, questions }`.
+* Implemented with OpenRouter (server-side, key never exposed). On missing key or failure it falls back to a local planner that returns up to 4 useful questions.
+* Max 4 questions; each has options, one `recommendedOption`, and `allowCustomAnswer: true`.
+* If the prompt is enough, `shouldAskQuestions: false` and generation proceeds directly.
+* Answers are collected in the chat, then generation runs with the original prompt + answers.
+
+### Chat composer
+
+* Compact `ChatComposer` with a plus button, auto-resizing textarea (min ~48px, max ~180px), and a submit button.
+* Used on both the start screen and the workspace follow-up input.
+* The start screen's visible "Design options" button was replaced by the plus menu (Upload logo, Generate images toggle, Design options).
+
+### Generated images toggle
+
+* `LandingPageDesignInput.useGeneratedImages` exists and is toggled from the plus menu.
+* Full AI image generation is not implemented; the toggle currently maps to enhanced deterministic generated graphics. OpenRouter image generation can be plugged in later behind `ENABLE_AI_IMAGES` / `OPENROUTER_IMAGE_MODEL`.
+
+### Files
+
+* `app/page.tsx`: start/workspace state machine, status, plan→ask→generate flow.
+* `app/api/plan/route.ts`: OpenRouter planner with local fallback.
+* `components/chat-composer.tsx`, `components/clarifying-questions.tsx`, `components/start-screen.tsx`, `components/workspace.tsx`, `components/export-actions.tsx`, `components/advanced-options.tsx`.
+* `lib/prompts.ts` adds planner prompts; `lib/types.ts` adds the new types.
+
+### Acceptance
+
+* Generate immediately opens the workspace.
+* Chat shows prompt + status; questions have choices/recommended/custom; skip works; generation works without questions.
+* Preview is full canvas via iframe `srcDoc`; copy/download use exact HTML; no white border; `npm run build` passes.

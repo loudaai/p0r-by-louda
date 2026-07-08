@@ -32,6 +32,43 @@ export type VisualStyle =
   | "service"
   | "default";
 
+export type GenerationStatus =
+  | "idle"
+  | "thinking"
+  | "asking"
+  | "generating"
+  | "ready"
+  | "error";
+
+export type ChatMessage = {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  status?: "thinking" | "working" | "done" | "error";
+};
+
+export type ClarifyingQuestion = {
+  id: string;
+  question: string;
+  recommendedOption?: string;
+  options: string[];
+  allowCustomAnswer: boolean;
+};
+
+export type PlanningResult = {
+  shouldAskQuestions: boolean;
+  confidence: "low" | "medium" | "high";
+  inferred: {
+    brandName?: string;
+    businessType?: string;
+    targetAudience?: string;
+    primaryCTA?: string;
+    tone?: string;
+    visualStyle?: string;
+  };
+  questions: ClarifyingQuestion[];
+};
+
 export type LandingPageContent = {
   brandName: string;
   tagline: string;
@@ -70,6 +107,7 @@ export type LandingPageDesignInput = {
   photoUrls: string[];
   useLogoPalette: boolean;
   colorsCustomized?: boolean;
+  useGeneratedImages?: boolean;
 };
 
 export const DEFAULT_DESIGN: LandingPageDesignInput = {
