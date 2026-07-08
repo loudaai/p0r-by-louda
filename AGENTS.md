@@ -309,3 +309,50 @@ Push to GitHub, import into Vercel, add env vars (OPENROUTER_API_KEY, OPENROUTER
 Keep the app small. Prefer boring, reliable code. Prioritize working generation, preview, export, deployment, clean UI. Do not overbuild.
 
 Goal: ship a useful AI tool today, not a full platform.
+
+## Generated Website Quality v2
+
+The generated/exported landing page was redesigned to look premium, not like a basic skeleton.
+
+### Design direction
+
+* One strong deterministic template (no multi-template system).
+* `max-width: 1200px` container, generous section spacing via `clamp()`.
+* Hero with `clamp()` headline (~40–76px), eyebrow, subheadline, dual CTA, trust strip, and a layered abstract hero graphic or photo.
+* Problem/Solution editorial two-panel split.
+* Benefits grid (up to 4 cards with numbered marks).
+* Features as a bento grid with varied card sizes on desktop and SVG line glyphs.
+* Showcase section: premium photo grid when photo URLs exist, otherwise deterministic browser mockup / generated graphics.
+* FAQ as a clean numbered list (no JS).
+* Strong closing CTA band using brand color glow.
+* Clean footer.
+
+### Color and logo rules
+
+* Colors are optional. `LandingPageDesignInput.colorsCustomized` distinguishes user-set colors from defaults.
+* Color priority: (1) manual user colors when `colorsCustomized`, (2) logo-extracted palette when `useLogoPalette` and a logo exists, (3) curated default palette for the chosen theme.
+* Curated dark/light base palettes define surfaces, borders, glows, text, and contrast. Brand/user/logo color is applied with restraint to CTA, glows, icons, and highlights only.
+* Logo upload (client-side data URL) extracts a 3-color palette via canvas and sets it as the default generated-site palette (`useLogoPalette`), overridable manually. Extraction fails gracefully to the curated palette.
+* `themeVars()` in `lib/generated-site.ts` resolves the active palette; `resolvePalette()` implements the priority.
+
+### Graphics (deterministic, no external assets)
+
+* Hero art: layered glow, dot grid, floating cards, orb, ring.
+* Browser mockup for showcase when no photos.
+* 12 SVG line glyphs for features (`FEATURE_ICONS`), shared between preview and export.
+* All graphics use CSS variables, adapt to theme, and are duplicated in preview and export.
+
+### Files
+
+* `lib/generated-site.ts`: `themeVars`, `resolvePalette`, `GENERATED_SITE_CSS`, `heroArtHtml`, `showcaseGraphicHtml`, `featureGlyphSvg`, `FEATURE_ICONS`.
+* `lib/html-export.ts`: `generateStandaloneHtml()` uses the new 10-section layout.
+* `components/landing-preview.tsx`: React mirror of the export using identical class names.
+* `components/generator-form.tsx`: color fields marked optional; manual edits set `colorsCustomized`; logo upload derives default palette.
+
+### Acceptance for v2
+
+* Colors optional; logo optional; no-logo/no-color exports still look good.
+* Logo upload drives default palette; user can override.
+* Preview and exported `index.html` match and look significantly better.
+* Light and dark themes both look premium.
+* `npm run build` passes; no secrets committed.

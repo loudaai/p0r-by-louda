@@ -1,7 +1,9 @@
 import type { LandingPageContent, LandingPageDesignInput } from "./types";
 import {
   GENERATED_SITE_CSS,
-  featureIconSvg,
+  featureGlyphSvg,
+  heroArtHtml,
+  showcaseGraphicHtml,
   themeVars,
 } from "./generated-site";
 
@@ -28,51 +30,109 @@ export function generateStandaloneHtml(
   const styleAttr = varsToStyle(design);
 
   const logo = design.logoDataUrl
-    ? `<img class="logo" src="${esc(design.logoDataUrl)}" alt="Logo" />`
-    : `<span class="brand">${esc(content.brandName)}</span>`;
+    ? `<a class="brand" href="#top"><img class="logo" src="${esc(design.logoDataUrl)}" alt="Logo" /></a>`
+    : `<a class="brand" href="#top">${esc(content.brandName)}</a>`;
 
   const heroPhoto = design.photoUrls.find((p) => p.trim() !== "");
   const heroVisual = heroPhoto
-    ? `<img class="hero-visual" src="${esc(heroPhoto)}" alt="" style="object-fit:cover" />`
-    : `<div class="hero-visual"><div class="mock"><div class="line"></div><div class="line short"></div><div class="bar"></div></div></div>`;
+    ? `<div class="photo-panel"><img src="${esc(heroPhoto)}" alt="" loading="lazy" /></div>`
+    : heroArtHtml(design);
 
-  const benefits = content.benefits
-    .map((benefit) => `<li>${esc(benefit)}</li>`)
+  const trustItems = content.benefits.slice(0, 4);
+  const trust = trustItems.length
+    ? `<div class="trust">${trustItems
+        .map((t) => `<span class="trust-item">${esc(t)}</span>`)
+        .join("")}</div>`
+    : "";
+
+  const benefitCards = content.benefits
+    .map(
+      (benefit, i) => `
+      <div class="benefit">
+        <span class="mark">${i + 1}</span>
+        <p>${esc(benefit)}</p>
+      </div>`
+    )
     .join("");
 
   const features = content.features
     .map(
       (feature, i) => `
-        <div class="feature">
-          ${featureIconSvg(design, i)}
-          <h3>${esc(feature.title)}</h3>
-          <p>${esc(feature.description)}</p>
-        </div>`
+      <div class="feature">
+        ${featureGlyphSvg(i, design.accentColor)}
+        <h3>${esc(feature.title)}</h3>
+        <p>${esc(feature.description)}</p>
+        <div class="mini"><span class="chip">${esc(feature.title.split(" ")[0] || "Feature")}</span></div>
+      </div>`
     )
     .join("");
 
   const faqs = content.faqs
     .map(
-      (faq) => `
-        <div class="faq">
+      (faq, i) => `
+      <div class="faq">
+        <span class="q-mark">${i + 1}</span>
+        <div>
           <h3>${esc(faq.question)}</h3>
           <p>${esc(faq.answer)}</p>
-        </div>`
+        </div>
+      </div>`
     )
     .join("");
 
   const photos = design.photoUrls.filter((p) => p.trim() !== "");
-  const gallery = photos.length
-    ? `<section class="block"><h2>Gallery</h2><div class="photos">${photos
-        .map((url) => `<img src="${esc(url)}" alt="" />`)
-        .join("")}</div></section>`
+  const showPhotos = photos.length > 0;
+
+  const gallery = showPhotos
+    ? `<div class="gallery">${photos
+        .map((url) => `<img src="${esc(url)}" alt="" loading="lazy" />`)
+        .join("")}</div>`
     : "";
 
-  const secondPhoto =
-    design.photoUrls[1]?.trim() || design.photoUrls[2]?.trim() || "";
-  const panelPhoto = secondPhoto
-    ? `<img class="panel-photo" src="${esc(secondPhoto)}" alt="" style="object-fit:cover" />`
-    : `<div class="panel-photo"></div>`;
+  const showcaseVisual = showPhotos
+    ? `<div class="photo-panel"><img src="${esc(photos[0])}" alt="" loading="lazy" /></div>`
+    : showcaseGraphicHtml(design);
+
+  const finalCta = `
+    <section class="section">
+      <div class="wrap">
+        <div class="cta-band">
+          ${
+            content.tagline
+              ? `<div class="eyebrow" style="justify-content:center">${esc(content.tagline)}</div>`
+              : ""
+          }
+          <h2>${esc(content.heroHeadline)}</h2>
+          ${
+            content.heroSubheadline
+              ? `<p class="lead">${esc(content.heroSubheadline)}</p>`
+              : ""
+          }
+          <div class="cta">
+            ${
+              content.primaryCTA
+                ? `<span class="btn btn-primary">${esc(content.primaryCTA)}</span>`
+                : ""
+            }
+            ${
+              content.secondaryCTA
+                ? `<span class="btn btn-secondary">${esc(content.secondaryCTA)}</span>`
+                : ""
+            }
+          </div>
+          ${
+            content.pricingOrOffer
+              ? `<p class="muted-text" style="margin-top:18px;font-size:14px">${esc(content.pricingOrOffer)}</p>`
+              : ""
+          }
+          ${
+            content.contactText
+              ? `<p class="muted-text" style="margin-top:6px;font-size:14px">${esc(content.contactText)}</p>`
+              : ""
+          }
+        </div>
+      </div>
+    </section>`;
 
   return `<!doctype html>
 <html lang="en">
@@ -80,20 +140,32 @@ export function generateStandaloneHtml(
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${esc(content.brandName)}</title>
+<meta name="description" content="${esc(content.heroSubheadline || content.tagline)}" />
 <style>${GENERATED_SITE_CSS}</style>
 </head>
 <body>
-<div class="lp" style="${styleAttr}">
+<div class="lp" id="top" style="${styleAttr}">
   <header class="site">
     ${logo}
-    <span class="brand">${esc(content.brandName)}</span>
+    <nav class="nav">
+      <a href="#features">Features</a>
+      <a href="#faq">FAQ</a>
+      <a href="#start">Get started</a>
+    </nav>
+    <span class="header-cta">
+      ${
+        content.primaryCTA
+          ? `<span class="btn btn-primary">${esc(content.primaryCTA)}</span>`
+          : ""
+      }
+    </span>
   </header>
 
   <section class="hero">
-    <div>
-      ${content.tagline ? `<div class="tagline">${esc(content.tagline)}</div>` : ""}
+    <div class="hero-copy">
+      ${content.tagline ? `<span class="eyebrow">${esc(content.tagline)}</span>` : ""}
       <h1>${esc(content.heroHeadline)}</h1>
-      ${content.heroSubheadline ? `<p class="sub">${esc(content.heroSubheadline)}</p>` : ""}
+      ${content.heroSubheadline ? `<p class="sub lead">${esc(content.heroSubheadline)}</p>` : ""}
       <div class="cta">
         ${
           content.primaryCTA
@@ -106,71 +178,86 @@ export function generateStandaloneHtml(
             : ""
         }
       </div>
+      ${trust}
     </div>
     ${heroVisual}
   </section>
 
-  <section class="block">
-    <h2>${esc(content.problemTitle)}</h2>
-    <p>${esc(content.problemDescription)}</p>
-  </section>
-
-  <section class="block">
-    <h2>${esc(content.solutionTitle)}</h2>
-    <p>${esc(content.solutionDescription)}</p>
-  </section>
-
   ${
-    benefits
-      ? `<section class="block"><h2>Why it helps</h2><ul class="benefits">${benefits}</ul></section>`
+    content.benefits.length
+      ? `<section class="section" id="why">
+      <div class="wrap">
+        <div class="benefits">${benefitCards}</div>
+      </div>
+    </section>`
       : ""
   }
 
-  ${
-    features
-      ? `<section class="block"><h2>What you get</h2><div class="features">${features}</div></section>`
-      : ""
-  }
-
-  <section class="block">
-    <h2>A closer look</h2>
-    <div class="graphics">
-      <div class="visual-panel">
-        <div class="inner">
-          <div class="head"></div>
-          <div class="blocks"><div class="block"></div><div class="block"></div><div class="block"></div></div>
-          <div class="head" style="width:60%"></div>
+  <section class="section" id="problem">
+    <div class="wrap">
+      <div class="split">
+        <div class="panel">
+          <span class="tag">Problem</span>
+          <h3>${esc(content.problemTitle)}</h3>
+          <p>${esc(content.problemDescription)}</p>
+        </div>
+        <div class="panel">
+          <span class="tag">Solution</span>
+          <h3>${esc(content.solutionTitle)}</h3>
+          <p>${esc(content.solutionDescription)}</p>
         </div>
       </div>
-      ${panelPhoto}
     </div>
   </section>
 
-  ${gallery}
-
   ${
-    faqs
-      ? `<section class="block"><h2>FAQ</h2><div class="faqs">${faqs}</div></section>`
+    content.features.length
+      ? `<section class="section" id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">What you get</span>
+          <h2>Built to do the work for you</h2>
+        </div>
+        <div class="bento">${features}</div>
+      </div>
+    </section>`
       : ""
   }
 
+  <section class="section" id="showcase">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">A closer look</span>
+        <h2>Designed with intention</h2>
+      </div>
+      <div class="showcase">
+        ${showcaseVisual}
+        ${gallery ? `<div class="gallery">${gallery}</div>` : `<div class="gallery"><div class="photo-panel" style="border-style:dashed;background:var(--surface-2)"></div><div class="photo-panel" style="border-style:dashed;background:var(--surface-2)"></div></div>`}
+      </div>
+    </div>
+  </section>
+
   ${
-    content.pricingOrOffer
-      ? `<section class="block"><div class="offer"><div class="label">Offer</div><p>${esc(
-          content.pricingOrOffer
-        )}</p></div></section>`
+    content.faqs.length
+      ? `<section class="section" id="faq">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">FAQ</span>
+          <h2>Questions, answered</h2>
+        </div>
+        <div class="faqs">${faqs}</div>
+      </div>
+    </section>`
       : ""
   }
 
-  ${
-    content.contactText
-      ? `<section class="block"><div class="contact"><div class="label">Contact</div><p>${esc(
-          content.contactText
-        )}</p></div></section>`
-      : ""
-  }
+  <span id="start"></span>
+  ${finalCta}
 
-  <footer class="site">${esc(content.footerText)}</footer>
+  <footer class="site">
+    <span class="brand">${esc(content.brandName)}</span>
+    <span>${esc(content.footerText)}</span>
+  </footer>
 </div>
 </body>
 </html>`;

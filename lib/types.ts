@@ -58,16 +58,18 @@ export type LandingPageDesignInput = {
   siteTheme: SiteTheme;
   photoUrls: string[];
   useLogoPalette: boolean;
+  colorsCustomized?: boolean;
 };
 
 export const DEFAULT_DESIGN: LandingPageDesignInput = {
   logoDataUrl: undefined,
-  primaryColor: "#e5e5e5",
-  secondaryColor: "#3f3f46",
-  accentColor: "#a1a1aa",
+  primaryColor: "#f5f5f6",
+  secondaryColor: "#2a2a31",
+  accentColor: "#9b9ba6",
   siteTheme: "dark",
   photoUrls: [],
   useLogoPalette: false,
+  colorsCustomized: false,
 };
 
 export const EMPTY_FORM_INPUT: LandingPageFormInput = {

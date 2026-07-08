@@ -76,7 +76,12 @@ function ColorField({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <label className="text-sm text-foreground">{label}</label>
+      <label className="text-sm text-foreground">
+        {label}
+        <span className="ml-2 text-xs font-normal text-muted-foreground">
+          optional
+        </span>
+      </label>
       <div className="flex items-center gap-2">
         <input
           type="color"
@@ -137,16 +142,20 @@ export function GeneratorForm({
     if (!file) return;
     try {
       const dataUrl = await fileToDataUrl(file);
-      const next: LandingPageDesignInput = { ...design, logoDataUrl: dataUrl };
-      if (design.useLogoPalette) {
-        try {
-          const palette = await extractPalette(dataUrl, 3);
-          next.primaryColor = palette[0] ?? design.primaryColor;
-          next.secondaryColor = palette[1] ?? design.secondaryColor;
-          next.accentColor = palette[2] ?? design.accentColor;
-        } catch {
-          /* keep manual colors */
-        }
+      const next: LandingPageDesignInput = {
+        ...design,
+        logoDataUrl: dataUrl,
+        useLogoPalette: false,
+        colorsCustomized: false,
+      };
+      try {
+        const palette = await extractPalette(dataUrl, 3);
+        next.primaryColor = palette[0] ?? next.primaryColor;
+        next.secondaryColor = palette[1] ?? next.secondaryColor;
+        next.accentColor = palette[2] ?? next.accentColor;
+        next.useLogoPalette = true;
+      } catch {
+        /* fall back to curated palette */
       }
       onDesignChange(next);
     } catch {
@@ -161,6 +170,7 @@ export function GeneratorForm({
         const palette = await extractPalette(design.logoDataUrl, 3);
         patchDesign({
           useLogoPalette: true,
+          colorsCustomized: false,
           primaryColor: palette[0] ?? design.primaryColor,
           secondaryColor: palette[1] ?? design.secondaryColor,
           accentColor: palette[2] ?? design.accentColor,
@@ -170,7 +180,7 @@ export function GeneratorForm({
         /* fall through to just toggle */
       }
     }
-    patchDesign({ useLogoPalette: next });
+    patchDesign({ useLogoPalette: next, colorsCustomized: false });
   }
 
   function setPhotoUrl(index: number, value: string) {
@@ -387,17 +397,23 @@ export function GeneratorForm({
           <ColorField
             label="Primary"
             value={design.primaryColor}
-            onChange={(v) => patchDesign({ primaryColor: v })}
+            onChange={(v) =>
+              patchDesign({ primaryColor: v, colorsCustomized: true, useLogoPalette: false })
+            }
           />
           <ColorField
             label="Secondary"
             value={design.secondaryColor}
-            onChange={(v) => patchDesign({ secondaryColor: v })}
+            onChange={(v) =>
+              patchDesign({ secondaryColor: v, colorsCustomized: true, useLogoPalette: false })
+            }
           />
           <ColorField
             label="Accent"
             value={design.accentColor}
-            onChange={(v) => patchDesign({ accentColor: v })}
+            onChange={(v) =>
+              patchDesign({ accentColor: v, colorsCustomized: true, useLogoPalette: false })
+            }
           />
 
           <div className="flex items-center justify-between gap-3">
