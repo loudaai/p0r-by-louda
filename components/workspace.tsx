@@ -72,6 +72,8 @@ export function Workspace({
   onSelectAnswer,
   onAnswerCustom,
   onSkip,
+  onPrev,
+  onNext,
   followUp,
   onFollowUpChange,
   onFollowUp,
@@ -87,6 +89,8 @@ export function Workspace({
   onSelectAnswer: (value: string) => void;
   onAnswerCustom: (value: string) => void;
   onSkip: () => void;
+  onPrev: () => void;
+  onNext: () => void;
   followUp: string;
   onFollowUpChange: (value: string) => void;
   onFollowUp: () => void;
@@ -194,9 +198,13 @@ export function Workspace({
           <div className="border-t border-white/5 px-4 py-3">
             <ClarifyingQuestions
               question={activeQuestionObj}
+              index={activeQuestion}
+              total={questions.length}
               onSelect={onSelectAnswer}
               onOther={() => inputRef.current?.focus()}
               onSkip={onSkip}
+              onPrev={onPrev}
+              onNext={onNext}
             />
           </div>
         ) : null}

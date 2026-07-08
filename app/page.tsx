@@ -191,6 +191,18 @@ export default function Home() {
     }
   }
 
+  function goPrev() {
+    if (activeQuestion > 0) setActiveQuestion(activeQuestion - 1);
+  }
+
+  function goNext() {
+    if (activeQuestion + 1 < questions.length) {
+      setActiveQuestion(activeQuestion + 1);
+    } else {
+      submitAnswers();
+    }
+  }
+
   function buildAnswersText(ans: Record<string, string>): string {
     return questions
       .map((q) => {
@@ -268,6 +280,8 @@ export default function Home() {
         onSelectAnswer={handleAnswer}
         onAnswerCustom={handleAnswer}
         onSkip={skipQuestions}
+        onPrev={goPrev}
+        onNext={goNext}
         followUp={followUp}
         onFollowUpChange={setFollowUp}
         onFollowUp={handleFollowUp}

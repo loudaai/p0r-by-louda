@@ -103,7 +103,7 @@ Rules:
 - Ask at most 4 questions.
 - Only ask questions that materially improve the page.
 - Do not ask a question if the answer can be confidently inferred from the request.
-- Every question must include a "recommendedOption" and a list of 3-5 concise options.
+- Every question must include a "recommendedOption" and exactly 3 concise options. The app appends an "Other" choice, so each question shows 4 choices total.
 - Always set "allowCustomAnswer": true.
 - If the request already has enough detail, set "shouldAskQuestions": false and return an empty questions array.
 - Prefer recommended options that suit a real, local, believable business.
