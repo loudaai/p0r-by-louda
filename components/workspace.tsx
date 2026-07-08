@@ -131,7 +131,13 @@ export function Workspace({
   return (
     <div className="flex h-screen w-full overflow-hidden bg-black text-white">
       <aside className="flex w-[340px] flex-col border-r border-white/10 bg-zinc-950">
-        <div className="flex items-center justify-end border-b border-white/5 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/por-logo-white.svg"
+            alt="p0r by Louda"
+            className="h-auto w-8"
+          />
           <button
             type="button"
             onClick={onBack}
