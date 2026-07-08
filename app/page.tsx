@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GeneratorForm } from "@/components/generator-form";
 import { LandingPreview } from "@/components/landing-preview";
+import { ExportActions } from "@/components/export-actions";
 import { SAMPLE_LANDING_PAGE } from "@/lib/sample-content";
 
 export default function Home() {
@@ -46,6 +47,7 @@ export default function Home() {
               <LandingPreview content={SAMPLE_LANDING_PAGE} />
             </CardContent>
           </Card>
+          <ExportActions content={SAMPLE_LANDING_PAGE} />
         </section>
       </main>
 
