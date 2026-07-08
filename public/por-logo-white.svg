@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1030 520" role="img" aria-label="POR logo" color="#fff">
+  <defs>
+    <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="130%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#000000" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <g fill="currentColor" filter="url(#soft-shadow)" fill-rule="evenodd">
+    <!-- P -->
+    <path d="
+      M 50 452
+      L 118 384
+      L 118 190
+      C 118 157 143 136 181 136
+      L 239 136
+      C 279 136 306 165 306 207
+      C 306 253 278 287 237 287
+      L 183 287
+      L 118 352
+      L 237 352
+      C 320 352 376 289 376 207
+      C 376 126 322 66 258 66
+      L 188 66
+      C 106 66 50 121 50 190
+      Z
+    "/>
+
+    <!-- Ø outer counter -->
+    <path d="
+      M 389 354
+      L 451 354
+      C 419 329 401 289 401 236
+      L 401 204
+      C 401 124 460 66 542 66
+      L 611 66
+      C 671 66 707 122 707 207
+      C 707 288 650 354 570 354
+      Z
+      M 474 283
+      L 562 283
+      C 602 283 626 256 626 215
+      L 626 136
+      L 536 136
+      C 500 136 474 159 474 193
+      Z
+    "/>
+
+    <!-- Ø diagonal slash -->
+    <path d="
+      M 405 345
+      L 419 359
+      L 692 86
+      L 678 72
+      Z
+    "/>
+
+    <!-- R -->
+    <path d="
+      M 721 354
+      L 792 354
+      L 792 198
+      C 792 161 819 136 858 136
+      L 933 136
+      L 856 213
+      L 923 213
+      L 1014 119
+      L 960 66
+      L 861 66
+      C 783 66 721 122 721 202
+      Z
+    "/>
+  </g>
+</svg>
