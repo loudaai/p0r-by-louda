@@ -53,14 +53,6 @@ function ToolIcon() {
   );
 }
 
-function ListIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />
-    </svg>
-  );
-}
-
 function AlertIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-amber-400" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -78,7 +70,7 @@ export function Workspace({
   questions,
   activeQuestion,
   onSelectAnswer,
-  onCustomAnswer,
+  onAnswerCustom,
   onSkip,
   followUp,
   onFollowUpChange,
@@ -93,7 +85,7 @@ export function Workspace({
   questions: ClarifyingQuestion[];
   activeQuestion: number;
   onSelectAnswer: (value: string) => void;
-  onCustomAnswer: (value: string) => void;
+  onAnswerCustom: (value: string) => void;
   onSkip: () => void;
   followUp: string;
   onFollowUpChange: (value: string) => void;
@@ -103,10 +95,11 @@ export function Workspace({
 }) {
   const [view, setView] = React.useState<ViewMode>("desktop");
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
   React.useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [chat, questions, activeQuestion, status]);
+  }, [chat, status]);
 
   const busy = status === "thinking" || status === "generating";
   const activeQuestionObj =
@@ -123,11 +116,18 @@ export function Workspace({
           ? "Generating the landing page..."
           : null;
 
+  function handleComposerSubmit() {
+    if (activeQuestionObj) {
+      if (followUp.trim()) onAnswerCustom(followUp.trim());
+      return;
+    }
+    onFollowUp();
+  }
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-black text-white">
       <aside className="flex w-[340px] flex-col border-r border-white/10 bg-zinc-950">
-        <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
-          <span className="text-sm font-semibold tracking-tight">p0r by Louda</span>
+        <div className="flex items-center justify-end border-b border-white/5 px-4 py-3">
           <button
             type="button"
             onClick={onBack}
@@ -144,7 +144,7 @@ export function Workspace({
               return (
                 <div
                   key={msg.id}
-                  className="max-w-[90%] rounded-2xl rounded-bl-sm border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-zinc-100"
+                  className="max-w-[85%] rounded-2xl rounded-bl-sm border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-zinc-100"
                 >
                   {msg.content}
                 </div>
@@ -162,16 +162,12 @@ export function Workspace({
               return (
                 <div
                   key={msg.id}
-                  className="rounded-xl border border-white/10 bg-zinc-900/50 px-3 py-2.5 text-xs leading-relaxed text-zinc-300"
+                  className="rounded-lg border border-white/10 px-3 py-2 text-sm leading-relaxed text-zinc-300"
                 >
-                  <div className="mb-1.5 font-medium text-zinc-200">Summary</div>
                   {msg.content
                     .split("\n")
-                    .slice(1)
                     .map((line, i) => (
-                      <div key={i} className="text-zinc-400">
-                        {line}
-                      </div>
+                      <div key={i}>{line}</div>
                     ))}
                 </div>
               );
@@ -192,27 +188,30 @@ export function Workspace({
               <span>{liveStatus}</span>
             </div>
           ) : null}
-
-          {activeQuestionObj ? (
-            <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-3">
-              <ClarifyingQuestions
-                question={activeQuestionObj}
-                onSelect={onSelectAnswer}
-                onCustom={onCustomAnswer}
-                onSkip={onSkip}
-              />
-            </div>
-          ) : null}
         </div>
+
+        {activeQuestionObj ? (
+          <div className="border-t border-white/5 px-4 py-3">
+            <ClarifyingQuestions
+              question={activeQuestionObj}
+              onSelect={onSelectAnswer}
+              onOther={() => inputRef.current?.focus()}
+              onSkip={onSkip}
+            />
+          </div>
+        ) : null}
 
         <div className="border-t border-white/5 p-3">
           <ChatComposer
             value={followUp}
             onChange={onFollowUpChange}
-            onSubmit={onFollowUp}
-            placeholder="Ask for a change, then Enter..."
+            onSubmit={handleComposerSubmit}
+            placeholder={
+              activeQuestionObj ? "Type your answer, then Enter..." : "Ask for a change, then Enter..."
+            }
             disabled={busy}
             submitLabel="Send"
+            inputRef={inputRef}
           />
         </div>
       </aside>

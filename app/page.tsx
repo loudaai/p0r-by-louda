@@ -181,7 +181,7 @@ export default function Home() {
     if (!q) return;
     const nextAnswers = { ...answers, [q.id]: value };
     setAnswers(nextAnswers);
-    pushMessage({ role: "user", content: value });
+    setFollowUp("");
 
     if (activeQuestion + 1 < questions.length) {
       setActiveQuestion(activeQuestion + 1);
@@ -201,10 +201,10 @@ export default function Home() {
   }
 
   function buildSummary(ans: Record<string, string>): string {
-    const lines = ["Summary"];
+    const lines: string[] = [];
     for (const q of questions) {
       const a = ans[q.id];
-      if (a) lines.push(`${q.question}: ${a}`);
+      if (a) lines.push(`${q.question.replace(/\?+$/, "")}: ${a}`);
     }
     return lines.join("\n");
   }
@@ -265,7 +265,7 @@ export default function Home() {
         questions={questions}
         activeQuestion={activeQuestion}
         onSelectAnswer={handleAnswer}
-        onCustomAnswer={handleAnswer}
+        onAnswerCustom={handleAnswer}
         onSkip={skipQuestions}
         followUp={followUp}
         onFollowUpChange={setFollowUp}

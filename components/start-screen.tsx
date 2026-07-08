@@ -88,20 +88,17 @@ export function StartScreen({
 
   return (
     <div className="flex min-h-screen flex-col bg-black">
-      <header className="flex items-center border-b border-white/5 px-6 py-4">
-        <span className="text-sm font-semibold tracking-tight text-white">
-          p0r by Louda
-        </span>
-      </header>
-
       <main className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-[720px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/por-logo-white.svg"
+            alt="p0r by Louda"
+            className="mx-auto mb-6 h-12 w-auto"
+          />
           <h1 className="text-center text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             What do you want to create?
           </h1>
-          <p className="mt-3 text-center text-sm text-zinc-500">
-            Describe a business, product, or idea. We&apos;ll build the landing page.
-          </p>
 
           <div className="mt-8">
             <ChatComposer

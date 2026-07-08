@@ -10,6 +10,7 @@ export function ChatComposer({
   plusContent,
   disabled = false,
   submitLabel = "Generate",
+  inputRef,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -18,6 +19,7 @@ export function ChatComposer({
   plusContent?: React.ReactNode;
   disabled?: boolean;
   submitLabel?: string;
+  inputRef?: React.Ref<HTMLTextAreaElement>;
 }) {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -75,7 +77,11 @@ export function ChatComposer({
 
       <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-zinc-900 p-3">
         <textarea
-          ref={textareaRef}
+          ref={(node) => {
+            textareaRef.current = node;
+            if (typeof inputRef === "function") inputRef(node);
+            else if (inputRef) (inputRef as React.MutableRefObject<HTMLTextAreaElement | null>).current = node;
+          }}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
